@@ -26,25 +26,32 @@ function App() {
         const seenLinks = new Set();
         
         rawData.forEach(row => {
-          const title = row[2]; // Column C: TITLE
+          // Check your Google Sheet to confirm which column holds the names!
+          // row[0] = Col A, row[1] = Col B, row[2] = Col C, etc.
+          const students = row[1]; // <-- Grab the names here
+          const title = row[2];    // Column C: TITLE
           const rawLink = row[3];  // Column D: GITHUB LINK
           
           if (title && rawLink) {
             
-            // THE FIX: Clean the link to catch sneaky typing variations
             const cleanLink = rawLink
-              .trim()                   // Removes accidental spaces
-              .toLowerCase()            // Ignores uppercase/lowercase differences
-              .replace(/\/$/, '')       // Removes a slash at the very end
-              .replace(/\.git$/, '');   // Removes .git at the very end
+              .trim()
+              .toLowerCase()
+              .replace(/\/$/, '')
+              .replace(/\.git$/, '');
 
             if (!seenLinks.has(cleanLink)) {
               seenLinks.add(cleanLink);
               
               const description = customDescriptions[rawLink] || customDescriptions[cleanLink] || "S5 Full Stack Development Project.";
               
-              // We pass the rawLink to the final button, but used cleanLink to filter
-              uniqueProjects.push({ title, link: rawLink.trim(), description });
+              // Add 'students' to the object we are saving
+              uniqueProjects.push({ 
+                title, 
+                students, // <-- Save it here
+                link: rawLink.trim(), 
+                description 
+              });
             }
           }
         });
@@ -64,19 +71,21 @@ function App() {
       <div className="project-grid">
         {projects.map((project, index) => {
           
-          // THE FIX: This line checks the actual URL text.
           const isGithub = project.link.toLowerCase().includes('github.com');
           
           return (
              <div key={index} className="project-card">
               <h2>{project.title}</h2>
+              
+              {/* Add this new line to display the student names */}
+              <h4 className="student-names">Team: {project.students}</h4>
+              
               <p>{project.description}</p>
               
               <a 
                 href={project.link} 
                 target="_blank" 
                 rel="noreferrer"
-                // If it is GitHub, use the dark button. If not, use the blue live button.
                 className={`btn ${isGithub ? 'btn-github' : 'btn-live'}`}
               >
                 {isGithub ? '💻 View Source Work' : '🌐 View Live App'}

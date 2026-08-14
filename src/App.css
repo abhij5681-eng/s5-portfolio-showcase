@@ -78,3 +78,10 @@ body {
 .btn-github {
   background-color: #2c3e50;
 }
+.student-names {
+  color: #64748b; /* A nice slate gray */
+  margin-top: -10px;
+  margin-bottom: 15px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
