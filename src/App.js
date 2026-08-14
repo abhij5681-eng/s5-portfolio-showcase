@@ -47,7 +47,7 @@ function App() {
                 title: title || "S5 Project",
                 students: [studentName],
                 link: rawLink.trim(),
-                description: customDescriptions[rawLink] || customDescriptions[cleanLink] || "S5 Full Stack Development Project."
+                description: customDescriptions[rawLink] || customDescriptions[cleanLink]
               };
             } else {
               if (studentName && !groupedProjects[cleanLink].students.includes(studentName)) {
