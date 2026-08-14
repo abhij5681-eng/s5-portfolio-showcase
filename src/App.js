@@ -11,8 +11,8 @@ function App() {
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    // 1. Pull the URL from the .env file instead of hardcoding it
-    const sheetUrl = process.env.REACT_APP_GOOGLE_SHEET_URL;
+    // Adding a timestamp forces Google to send the freshest data, bypassing the 5-minute cache!
+    const sheetUrl = `${process.env.REACT_APP_GOOGLE_SHEET_URL}&t=${new Date().getTime()}`;
     
     Papa.parse(sheetUrl, {
       download: true,
