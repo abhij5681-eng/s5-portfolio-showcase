@@ -4,23 +4,24 @@ import './App.css';
 
 // --- YOUR CUSTOM DESCRIPTIONS ---
 const customDescriptions = {
-  // "https://github.com/yourusername/project1": "Custom description here",
+  // Add any custom project descriptions here
 };
 
 function App() {
   const [projects, setProjects] = useState([]);
 
- useEffect(() => {
-    // Cache buster included
+  useEffect(() => {
+    // Force Google Sheets to bypass the 5-minute cache
     const sheetUrl = `${process.env.REACT_APP_GOOGLE_SHEET_URL}&t=${new Date().getTime()}`;
     
     Papa.parse(sheetUrl, {
       download: true,
       header: false,
       complete: (results) => {
+        // Skip Row 1 and 2
         const rawData = results.data.slice(2); 
         
-        // ONLY DECLARED ONCE HERE
+        // Declared exactly ONCE
         const groupedProjects = {}; 
         
         rawData.forEach(row => {
@@ -29,6 +30,7 @@ function App() {
           const rawLink = row[3];     // Column D: GITHUB LINK
           
           if (rawLink) { 
+            // The Ultimate Link Cleaner
             const cleanLink = rawLink
               .trim()
               .toLowerCase()
@@ -39,6 +41,7 @@ function App() {
               .replace(/^https?:\/\//, '')    
               .replace(/^www\./, '');         
 
+            // Grouping Logic
             if (!groupedProjects[cleanLink]) {
               groupedProjects[cleanLink] = {
                 title: title || "S5 Project",
@@ -57,6 +60,7 @@ function App() {
           }
         });
 
+        // Convert the object back to an array for React
         const finalProjectsList = Object.values(groupedProjects).map(project => ({
           ...project,
           students: project.students.filter(Boolean).join(" & ")
@@ -82,10 +86,7 @@ function App() {
           return (
              <div key={index} className="project-card">
               <h2>{project.title}</h2>
-              
-              {/* Add this new line to display the student names */}
               <h4 className="student-names">Team: {project.students}</h4>
-              
               <p>{project.description}</p>
               
               <a 
