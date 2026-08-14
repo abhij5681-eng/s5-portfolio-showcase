@@ -25,12 +25,13 @@ function App() {
         const uniqueProjects = [];
         const seenLinks = new Set();
         
+        // 1. Create an empty object to group our projects
+        const groupedProjects = {}; 
+
         rawData.forEach(row => {
-          // Check your Google Sheet to confirm which column holds the names!
-          // row[0] = Col A, row[1] = Col B, row[2] = Col C, etc.
-          const students = row[1]; // <-- Grab the names here
-          const title = row[2];    // Column C: TITLE
-          const rawLink = row[3];  // Column D: GITHUB LINK
+          const studentName = row[1]; // Column B: NAME
+          const title = row[2];       // Column C: TITLE
+          const rawLink = row[3];     // Column D: GITHUB LINK
           
           if (title && rawLink) {
             
@@ -40,22 +41,29 @@ function App() {
               .replace(/\/$/, '')
               .replace(/\.git$/, '');
 
-            if (!seenLinks.has(cleanLink)) {
-              seenLinks.add(cleanLink);
-              
-              const description = customDescriptions[rawLink] || customDescriptions[cleanLink] || "S5 Full Stack Development Project.";
-              
-              // Add 'students' to the object we are saving
-              uniqueProjects.push({ 
-                title, 
-                students, // <-- Save it here
-                link: rawLink.trim(), 
-                description 
-              });
+            // 2. If we haven't seen this project link before, create it!
+            if (!groupedProjects[cleanLink]) {
+              groupedProjects[cleanLink] = {
+                title: title,
+                students: [studentName], // Store names in an array
+                link: rawLink.trim(),
+                description: customDescriptions[rawLink] || customDescriptions[cleanLink] || "S5 Full Stack Development Project."
+              };
+            } else {
+              // 3. If the project ALREADY exists, just push the new student's name into the array!
+              if (studentName && !groupedProjects[cleanLink].students.includes(studentName)) {
+                groupedProjects[cleanLink].students.push(studentName);
+              }
             }
           }
         });
 
+        // 4. Convert our grouped object back into an array for React, and glue the names with " & "
+        const finalProjectsList = Object.values(groupedProjects).map(project => ({
+          ...project,
+          students: project.students.filter(Boolean).join(" & ")
+        }));
+        
         setProjects(uniqueProjects);
       }
     });
