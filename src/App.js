@@ -10,35 +10,25 @@ const customDescriptions = {
 function App() {
   const [projects, setProjects] = useState([]);
 
-  useEffect(() => {
-    // Adding a timestamp forces Google to send the freshest data, bypassing the 5-minute cache!
+ useEffect(() => {
+    // Cache buster included
     const sheetUrl = `${process.env.REACT_APP_GOOGLE_SHEET_URL}&t=${new Date().getTime()}`;
     
     Papa.parse(sheetUrl, {
       download: true,
-      header: false, // Bypasses the merged title row
+      header: false,
       complete: (results) => {
-        
-        // Skip Row 1 and Row 2, start reading at the actual data
         const rawData = results.data.slice(2); 
         
-        const uniqueProjects = [];
-        const seenLinks = new Set();
+        // ONLY DECLARED ONCE HERE
+        const groupedProjects = {}; 
         
-        // 1. Create an empty object to group our projects
-        const groupedProjects = {}; 
-
-        const groupedProjects = {}; 
-
         rawData.forEach(row => {
           const studentName = row[1]; // Column B: NAME
           const title = row[2];       // Column C: TITLE
           const rawLink = row[3];     // Column D: GITHUB LINK
           
-          // THE FIX: Only check if the link exists! 
-          // We no longer care if they left the title blank.
           if (rawLink) { 
-            
             const cleanLink = rawLink
               .trim()
               .toLowerCase()
@@ -50,19 +40,16 @@ function App() {
               .replace(/^www\./, '');         
 
             if (!groupedProjects[cleanLink]) {
-              // If it's a new project, create it
               groupedProjects[cleanLink] = {
-                title: title || "S5 Project", // If title is blank, use a fallback
+                title: title || "S5 Project",
                 students: [studentName],
                 link: rawLink.trim(),
                 description: customDescriptions[rawLink] || customDescriptions[cleanLink] || "S5 Full Stack Development Project."
               };
             } else {
-              // If the project already exists, just push the teammate's name!
               if (studentName && !groupedProjects[cleanLink].students.includes(studentName)) {
                 groupedProjects[cleanLink].students.push(studentName);
               }
-              // If the first teammate forgot the title, but the second one remembered it, grab it!
               if (title && groupedProjects[cleanLink].title === "S5 Project") {
                 groupedProjects[cleanLink].title = title;
               }
