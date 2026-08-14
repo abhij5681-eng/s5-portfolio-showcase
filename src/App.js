@@ -28,48 +28,54 @@ function App() {
         // 1. Create an empty object to group our projects
         const groupedProjects = {}; 
 
+        const groupedProjects = {}; 
+
         rawData.forEach(row => {
           const studentName = row[1]; // Column B: NAME
           const title = row[2];       // Column C: TITLE
           const rawLink = row[3];     // Column D: GITHUB LINK
           
-          if (title && rawLink) {
+          // THE FIX: Only check if the link exists! 
+          // We no longer care if they left the title blank.
+          if (rawLink) { 
             
-            // THE ULTIMATE CLEANER
             const cleanLink = rawLink
               .trim()
               .toLowerCase()
-              .split('?')[0]                  // Chops off any ?query=params
-              .split('#')[0]                  // Chops off any #anchor-links
-              .replace(/\/$/, '')             // Removes trailing slash
-              .replace(/\.git$/, '')          // Removes .git at the end
-              .replace(/^https?:\/\//, '')    // Removes http:// or https://
-              .replace(/^www\./, '');         // Removes www.
+              .split('?')[0]                  
+              .split('#')[0]                  
+              .replace(/\/$/, '')             
+              .replace(/\.git$/, '')          
+              .replace(/^https?:\/\//, '')    
+              .replace(/^www\./, '');         
 
-            // 2. If we haven't seen this project link before, create it!
             if (!groupedProjects[cleanLink]) {
+              // If it's a new project, create it
               groupedProjects[cleanLink] = {
-                title: title,
-                students: [studentName], // Store names in an array
+                title: title || "S5 Project", // If title is blank, use a fallback
+                students: [studentName],
                 link: rawLink.trim(),
                 description: customDescriptions[rawLink] || customDescriptions[cleanLink] || "S5 Full Stack Development Project."
               };
             } else {
-              // 3. If the project ALREADY exists, just push the new student's name into the array!
+              // If the project already exists, just push the teammate's name!
               if (studentName && !groupedProjects[cleanLink].students.includes(studentName)) {
                 groupedProjects[cleanLink].students.push(studentName);
+              }
+              // If the first teammate forgot the title, but the second one remembered it, grab it!
+              if (title && groupedProjects[cleanLink].title === "S5 Project") {
+                groupedProjects[cleanLink].title = title;
               }
             }
           }
         });
 
-        // 4. Convert our grouped object back into an array for React, and glue the names with " & "
         const finalProjectsList = Object.values(groupedProjects).map(project => ({
           ...project,
           students: project.students.filter(Boolean).join(" & ")
         }));
-        
-        setProjects(uniqueProjects);
+
+        setProjects(finalProjectsList);
       }
     });
   }, []);
