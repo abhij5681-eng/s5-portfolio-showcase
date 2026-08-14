@@ -87,7 +87,7 @@ function App() {
              <div key={index} className="project-card">
               <h2>{project.title}</h2>
               <BR></BR>
-              <h3 className="student-names">Team: {project.students}</h3>
+              <h4 className="student-names">Team: {project.students}</h4>
               <p>{project.description}</p>
               
               <a 
