@@ -27,14 +27,25 @@ function App() {
         
         rawData.forEach(row => {
           const title = row[2]; // Column C: TITLE
-          const link = row[3];  // Column D: GITHUB LINK (where students paste Vercel apps too)
+          const rawLink = row[3];  // Column D: GITHUB LINK
           
-          if (title && link && !seenLinks.has(link)) {
-            seenLinks.add(link);
+          if (title && rawLink) {
             
-            const description = customDescriptions[link] || "S5 Full Stack Development Project.";
-            
-            uniqueProjects.push({ title, link, description });
+            // THE FIX: Clean the link to catch sneaky typing variations
+            const cleanLink = rawLink
+              .trim()                   // Removes accidental spaces
+              .toLowerCase()            // Ignores uppercase/lowercase differences
+              .replace(/\/$/, '')       // Removes a slash at the very end
+              .replace(/\.git$/, '');   // Removes .git at the very end
+
+            if (!seenLinks.has(cleanLink)) {
+              seenLinks.add(cleanLink);
+              
+              const description = customDescriptions[rawLink] || customDescriptions[cleanLink] || "S5 Full Stack Development Project.";
+              
+              // We pass the rawLink to the final button, but used cleanLink to filter
+              uniqueProjects.push({ title, link: rawLink.trim(), description });
+            }
           }
         });
 
