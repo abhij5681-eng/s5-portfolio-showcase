@@ -35,15 +35,16 @@ function App() {
           
           if (title && rawLink) {
             
-            // THE AGGRESSIVE CLEANER
-            // This strips away all the messy parts of a URL so only the core path remains
+            // THE ULTIMATE CLEANER
             const cleanLink = rawLink
               .trim()
               .toLowerCase()
+              .split('?')[0]                  // Chops off any ?query=params
+              .split('#')[0]                  // Chops off any #anchor-links
               .replace(/\/$/, '')             // Removes trailing slash
               .replace(/\.git$/, '')          // Removes .git at the end
-              .replace(/^https?:\/\//, '')    // Removes http:// or https:// at the beginning
-              .replace(/^www\./, '');         // Removes www. at the beginning
+              .replace(/^https?:\/\//, '')    // Removes http:// or https://
+              .replace(/^www\./, '');         // Removes www.
 
             // 2. If we haven't seen this project link before, create it!
             if (!groupedProjects[cleanLink]) {
@@ -67,7 +68,7 @@ function App() {
           ...project,
           students: project.students.filter(Boolean).join(" & ")
         }));
-
+        
         setProjects(uniqueProjects);
       }
     });
